@@ -17,10 +17,10 @@ jobs:
       - run:
           name: Build
           command: |
-            docker build -t my-app .
+            docker build -t veltra/elasticsearch .
 
       - run:
           name: Run tests
           command: |
-            docker run -p 9200:9200 --name my-app my-app; sleep 15
-            docker run --network container:my-app appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
+            docker run -e "ES_JAVA_OPTS=-Xmx256m -Xms256m" -d -p 9200:9200 --name my-app veltra/elasticsearch; sleep 15
+            docker run --network container:elasticsearch appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
