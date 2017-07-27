@@ -23,10 +23,13 @@ jobs:
           name: Run tests
           command: |
             docker run \
-              -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+              -e "bootstrap.memory_lock=true" \
+              -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
               -e "xpack.security.enabled=true" \
               -e "xpack.monitoring.enabled=false" \
               -e "xpack.watcher.enabled=false" \
               -e "xpack.graph.enabled=false" \
+              -p 9200:9200 \
+              -d \
               --name elasticsearch veltra/elasticsearch; sleep 15
             docker run --network container:elasticsearch appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
