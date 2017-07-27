@@ -22,5 +22,5 @@ jobs:
       - run:
           name: Run tests
           command: |
-            docker run -d -p 9200:9200 --name my-app my-app; sleep 15
+            docker run -p 9200:9200 --name my-app my-app; sleep 15
             docker run --network container:my-app appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
