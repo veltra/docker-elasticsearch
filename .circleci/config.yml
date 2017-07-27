@@ -23,7 +23,7 @@ jobs:
           name: Run tests
           command: |
             docker run \
-              -e "ES_JAVA_OPTS=-Xmx256m -Xms256m" \
+              -e "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
               -e "xpack.security.enabled=true" \
               -e "xpack.monitoring.enabled=false" \
               -e "xpack.watcher.enabled=false" \
