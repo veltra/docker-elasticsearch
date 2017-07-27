@@ -22,5 +22,5 @@ jobs:
       - run:
           name: Run tests
           command: |
-            docker run --rm -d -p 9200:9200 --name elasticsearch veltra/elasticsearch; sleep 15
-            docker run --rm --network container:elasticsearch appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
+            docker run -d -p 9200:9200 --name elasticsearch veltra/elasticsearch; sleep 15
+            docker run --network container:elasticsearch appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
