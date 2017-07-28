@@ -1,1 +1,1 @@
-# docker-elasticsearch
+# docker-elasticsearch [![CircleCI](https://circleci.com/gh/veltra/docker-elasticsearch.svg?style=svg&circle-token=6a624b99ec2bac7b2b7fca052252f5681afc21b6)](https://circleci.com/gh/veltra/docker-elasticsearch)
