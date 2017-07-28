@@ -17,10 +17,9 @@ jobs:
       - run:
           name: Build
           command: |
-            docker build -t veltra/elasticsearch .
+            make build
 
       - run:
           name: Run tests
           command: |
-            docker run -p 9200:9200 -d --name elasticsearch veltra/elasticsearch; sleep 5
-            docker run --network container:elasticsearch appropriate/curl --retry 10 --retry-connrefused -u elastic:changeme http://localhost:9200
+            make test
