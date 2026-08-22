@@ -1,0 +1,83 @@
+// docs/architecture/docker_elasticsearch.c4 — LikeC4 model for veltra/docker-elasticsearch
+// generated_by: claude-fable-5 / layered-docs 2026-08
+// source_commit: 3f1e63efae6af225d91c11f0a705be3c7de60293   source_branch: allium/layered-docs-2026-08   generated_at: 2026-08-21T21:20:48+00:00
+// confidence: high   review_status: draft-needs-review
+model {
+  docker_elasticsearch = system 'Elasticsearch Docker Image' {
+    #generated
+    description '
+      Custom Elasticsearch 6.2.4 (OSS distribution) Docker image with the analysis-icu and
+      analysis-kuromoji plugins pre-installed, built and tagged locally as veltra/elasticsearch
+      (Makefile line 6); no publish/push step is evidenced in the repository.
+      Evidence: Dockerfile, Makefile, .circleci/config.yml
+    '
+    technology 'Docker / Elasticsearch 6.2.4 OSS'
+    link https://github.com/veltra/docker-elasticsearch 'Repository'
+    metadata {
+      okf 'docs/okf/system.md'
+      allium 'none: no .allium specs in the repository'
+      evidence 'Dockerfile, Makefile, .circleci/config.yml, README.md'
+    }
+
+    elasticsearch = container 'Elasticsearch server' {
+      #generated #entrypoint
+      description '
+        Elasticsearch 6.2.4 OSS node built from the official elastic image, extended with the
+        analysis-icu and analysis-kuromoji analysis plugins. Run standalone it listens on port 9200
+        (Makefile test target runs it with discovery.type=single-node). Evidence: Dockerfile, Makefile
+      '
+      technology 'Elasticsearch 6.2.4 OSS (Docker)'
+      metadata {
+        okf 'docs/okf/system.md'
+        allium 'none: no .allium specs in the repository'
+        evidence 'Dockerfile, Makefile'
+      }
+    }
+  }
+
+  ext_elastic_docker_registry = external 'Elastic Docker registry' {
+    #generated #external
+    description 'docker.elastic.co — source of the base image elasticsearch-oss:6.2.4. Evidence: Dockerfile line 1'
+  }
+  docker_elasticsearch.elasticsearch -[uses]-> ext_elastic_docker_registry 'built FROM elasticsearch-oss:6.2.4 base image'
+
+  ext_elasticsearch_plugin_artifacts = external 'Elasticsearch plugin artifact source' {
+    #generated #external
+    description '
+      Remote source from which elasticsearch-plugin install fetches the analysis-icu and
+      analysis-kuromoji plugins during the image build. The host is not named in the repository.
+      Evidence: Dockerfile lines 2-3
+    '
+  }
+  docker_elasticsearch.elasticsearch -[uses]-> ext_elasticsearch_plugin_artifacts 'elasticsearch-plugin install analysis-icu / analysis-kuromoji (build time)'
+
+  ext_docker_hub = external 'Docker Hub' {
+    #generated #external
+    description '
+      Source of the images used by the build/test path: appropriate/curl for the smoke test and
+      docker:17.07.0-ce-git as the CI executor image (neither is qualified with a registry host,
+      so Docker Hub is the default resolution). Evidence: Makefile line 10, .circleci/config.yml line 6
+    '
+  }
+
+  ext_circleci = external 'CircleCI' {
+    #generated #external
+    description 'CI service that builds the image and smoke-tests it (make build, make test). Evidence: .circleci/config.yml, README.md badge'
+  }
+  ext_circleci -[uses]-> docker_elasticsearch 'builds and smoke-tests the image on each commit (make build / make test)'
+  ext_circleci -[uses]-> ext_docker_hub 'runs the job in the docker:17.07.0-ce-git executor image (.circleci/config.yml line 6)'
+  docker_elasticsearch.elasticsearch -[uses]-> ext_docker_hub 'smoke test runs the appropriate/curl image against port 9200 (Makefile line 10)'
+}
+
+views {
+  view docker_elasticsearch_context {
+    title 'Elasticsearch Docker Image — context'
+    include docker_elasticsearch, ext_elastic_docker_registry, ext_elasticsearch_plugin_artifacts, ext_docker_hub, ext_circleci
+    autoLayout TopBottom
+  }
+  view docker_elasticsearch_containers of docker_elasticsearch {
+    title 'Elasticsearch Docker Image — containers'
+    include *
+    autoLayout LeftRight
+  }
+}
