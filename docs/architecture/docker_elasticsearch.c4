@@ -1,0 +1,69 @@
+// generated_by: claude-opus-5 / layered-docs 2026-09
+// source_commit: 3f1e63efae6af225d91c11f0a705be3c7de60293   source_branch: docs/layered-2026-09   generated_at: 2026-09-11T07:47:05Z
+// confidence: medium   review_status: draft-needs-review
+model {
+  docker_elasticsearch = system 'Elasticsearch image (Japanese search)' {
+    #generated
+    description '
+      Build definition for the organisation Elasticsearch container image: the Elastic OSS 6.2.4
+      base image plus the analysis-icu and analysis-kuromoji analysis plugins, so that Japanese
+      text analysis is available out of the box. Evidence: Dockerfile; README.md; Makefile.
+    '
+    technology 'Dockerfile (Elasticsearch OSS 6.2.4)'
+    link https://github.com/veltra/docker-elasticsearch 'Repository'
+    metadata {
+      okf 'docs/okf/system.md'
+      allium 'none: no accepted spec'
+      evidence 'Dockerfile; Makefile; README.md; .circleci/config.yml'
+    }
+
+    search_node = container 'Elasticsearch image (ICU + Kuromoji)' {
+      #generated #entrypoint
+      description '
+        The single artefact this repository produces: an Elasticsearch OSS image with the two
+        analysis plugins installed. Serves the Elasticsearch HTTP API on port 9200 when run;
+        port 9200 and discovery.type=single-node are evidenced only by the smoke-test invocation
+        in Makefile:9, not by any deployed configuration.
+        Evidence: Dockerfile:1-3; Makefile:9.
+      '
+      technology 'Elasticsearch OSS 6.2.4; plugins analysis-icu, analysis-kuromoji; HTTP 9200 (smoke-test run only)'
+      metadata {
+        okf 'docs/okf/system.md'
+        allium 'none: no accepted spec'
+        evidence 'Dockerfile:1-3; Makefile:9 — no persistent volume is configured anywhere in the repository, so no datastore element is warranted'
+      }
+    }
+  }
+
+  ext_elastic_docker_registry = external 'Elastic Docker registry (docker.elastic.co)' {
+    #generated #external
+    description 'Source of the elasticsearch-oss:6.2.4 base image. Evidence: Dockerfile:1. The host from which elasticsearch-plugin fetches analysis-icu and analysis-kuromoji is not stated anywhere in the repository.'
+  }
+
+  ext_docker_hub = external 'Docker Hub (public image registry)' {
+    #generated #external
+    description 'Source of the unqualified public images used by the build and CI: appropriate/curl for the smoke test and docker:17.07.0-ce-git for the CI executor. Evidence: Makefile:10; .circleci/config.yml:6.'
+  }
+
+  ext_circleci = external 'CircleCI' {
+    #generated #external
+    description 'Runs the image build and the make test smoke check on a remote Docker executor. Evidence: .circleci/config.yml:1-25; README.md badge.'
+  }
+
+  docker_elasticsearch -[uses]-> ext_elastic_docker_registry 'pulls the pinned elasticsearch-oss base image at build time'
+  docker_elasticsearch -[uses]-> ext_docker_hub 'pulls appropriate/curl and the CI executor image at build/CI time'
+  docker_elasticsearch -[uses]-> ext_circleci 'builds the image and runs the make test smoke check (single build job, no workflow or branch filters declared)'
+}
+
+views {
+  view docker_elasticsearch_context {
+    title 'Elasticsearch image — context'
+    include docker_elasticsearch, ext_elastic_docker_registry, ext_docker_hub, ext_circleci
+    autoLayout TopBottom
+  }
+  view docker_elasticsearch_containers of docker_elasticsearch {
+    title 'Elasticsearch image — containers'
+    include *
+    autoLayout LeftRight
+  }
+}
