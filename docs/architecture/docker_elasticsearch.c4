@@ -52,7 +52,7 @@ model {
 
   docker_elasticsearch -[uses]-> ext_elastic_docker_registry 'pulls the pinned elasticsearch-oss base image at build time'
   docker_elasticsearch -[uses]-> ext_docker_hub 'pulls appropriate/curl and the CI executor image at build/CI time'
-  docker_elasticsearch -[uses]-> ext_circleci 'builds the image and runs the make test smoke check (single build job, no workflow or branch filters declared)'
+  ext_circleci -[uses]-> docker_elasticsearch 'checks out the repository, builds the image and runs the make test smoke check (single build job, no workflow or branch filters declared)'
 }
 
 views {

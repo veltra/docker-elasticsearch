@@ -87,7 +87,7 @@ none — no accepted Allium specification exists for this repository (no `.alliu
 - `.circleci/config.yml` — CI job: checkout, remote Docker, `make build`, `make test`
 - `README.md` — repository title and CircleCI status badge
 - `git log` at `3f1e63e` — merge of pull request #2 from branch `es-6.2.4`
-- `git ls-files` at `3f1e63e` — the repository contains only the six files above plus `.gitignore` and `.env`
+- `git ls-files` at `3f1e63e` — the repository tracks six files in total: `.circleci/config.yml`, `.env`, `.gitignore`, `Dockerfile`, `Makefile` and `README.md`
 
 ## Open questions
 - Which services consume this image, and in which environment it runs, is not evidenced in this repository — confidence: low.

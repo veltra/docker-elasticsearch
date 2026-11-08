@@ -33,8 +33,12 @@ installed or configured per container (`Dockerfile:2-3`). Nothing in the reposit
 
 ## Decision
 Install `analysis-icu` and `analysis-kuromoji` as separate `RUN elasticsearch-plugin install` layers
-in the image (`Dockerfile`), so every container started from the image already has them. This is the
-entire reason the repository exists rather than using the upstream image directly.
+in the image (`Dockerfile`), so every container started from the image already has them. These two
+installs are the only change the `Dockerfile` makes to the upstream image (`Dockerfile:1-3`).
+
+> Not recorded in the repository; presumed: providing these plugins is why the repository exists
+> rather than consumers using the upstream image directly. The README holds only a title and a CI
+> badge (`README.md:1`) and no commit message states a purpose. Confidence: low.
 
 ## Consequences
 - Any index mapping in consuming systems may rely on ICU and Kuromoji analyzers being available — evidence: `Dockerfile`.

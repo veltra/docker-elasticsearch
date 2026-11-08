@@ -22,22 +22,27 @@ review_status: draft-needs-review
 # ADR-0003 Verify the image with a CircleCI build-and-curl smoke test
 
 ## Context
-The repository has no application code to unit-test; the only failure modes are a base image or
-plugin install that breaks the build and an image that fails to start a working node. A check is
-still run in CircleCI, as the CI badge in `README.md:1` and the config show (`.circleci/config.yml:1-25`).
+The repository has no application code to unit-test: it tracks only a `Dockerfile`, a `Makefile`,
+the CircleCI config, a README, `.env` and `.gitignore`.
+
+> Not recorded in the repository; presumed: the failures worth checking are a base image or plugin
+> install that breaks the build and an image that does not start a responding node. Confidence: low.
+
+A check is run in CircleCI, as the CI badge in `README.md:1` and the config show (`.circleci/config.yml:1-25`).
 
 ## Decision
 Keep verification in the `Makefile` as two targets and have CircleCI call them: `build` runs
 `docker build`, and `test` depends on `build`, starts the image detached with
 `discovery.type=single-node` and port 9200 published, sleeps, then runs an `appropriate/curl`
 container joined to the Elasticsearch container's network namespace with
-`--retry 10 --retry-connrefused` and basic-auth credentials, so a non-responding node fails the job
-(`Makefile`, `.circleci/config.yml`). CI uses the `docker:17.07.0-ce-git` image with
+`--retry 10 --retry-connrefused` and basic-auth credentials, so a node that never accepts connections
+fails the job (`Makefile`, `.circleci/config.yml`). CI uses the `docker:17.07.0-ce-git` image with
 `setup_remote_docker` and installs `bash curl make` at job start. The config declares a single `build`
 job with no `workflows`, branch or tag filters, so the CircleCI default trigger applies
 (`.circleci/config.yml:1-25`).
 
 ## Consequences
+- The curl call has no `-f`/`--fail` flag (`Makefile:10`), so an HTTP error response from the node (for example 401 on rejected credentials) still exits successfully: the check proves the port answers, not that the request succeeds.
 - The same command verifies the image locally and in CI — no CI-only test path (`Makefile`).
 - Verification depends on a fixed `sleep 20` plus curl retries rather than a readiness check, so it is timing-sensitive on slow runners (`Makefile`).
 - The smoke test needs credentials from the `Makefile`'s included environment file, which couples CI to that file being present (`Makefile`).
